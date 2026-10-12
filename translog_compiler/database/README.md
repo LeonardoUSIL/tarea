@@ -1,0 +1,4 @@
+- `app.db`       → SQLite (se crea al iniciar).
+- `migrations/`  → scripts SQL idempotentes que se aplican en orden al arrancar.
+- `seeds/`       → datos iniciales (`sedes.json`: catálogo de sedes).
+- `backups/`     → copias de seguridad (copie `app.db` aquí).

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}Historial{% endblock %}
+{% block contenido %}
+<h1>Historial de auditoría</h1>
+<div class="stats">
+  <div class="tarjeta"><b>{{ stats.total }}</b><span>validaciones</span></div>
+  <div class="tarjeta"><b>{{ stats.validos }}</b><span>válidas</span></div>
+  <div class="tarjeta"><b>{{ stats.invalidos }}</b><span>inválidas</span></div>
+  <div class="tarjeta"><b>{{ stats.tasa_error }} %</b><span>tasa de error</span></div>
+</div>
+{% if stats.por_fase %}<p class="sub">Errores por fase:
+  {% for fase, n in stats.por_fase.items() %}<span class="chip">{{ fase }}: {{ n }}</span>{% endfor %}</p>{% endif %}
+<p><a class="btn" href="{{ url_for('main.reporte', formato='csv') }}">Descargar CSV</a>
+   <a class="btn btn-sec" href="{{ url_for('main.reporte', formato='json') }}">Descargar JSON</a></p>
+<table>
+  <thead><tr><th>Fecha y hora</th><th>Código</th><th>Resultado</th><th>Motivo</th><th>ms</th><th>Modo</th></tr></thead>
+  <tbody>
+  {% for f in filas %}
+    <tr><td>{{ f.fecha_hora }}</td><td><code>{{ f.codigo }}</code></td>
+        <td>{{ 'Válido' if f.valido else 'Inválido (' ~ f.fase_error ~ ')' }}</td>
+        <td>{{ f.motivo }}</td><td>{{ f.tiempo_ms }}</td><td>{{ f.modo }}</td></tr>
+  {% else %}<tr><td colspan="6">Aún no hay validaciones registradas.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

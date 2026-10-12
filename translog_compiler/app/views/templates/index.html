@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block contenido %}
+<h1>Validación de códigos de guía de remisión</h1>
+<p class="sub">Formato: <code>GR-SEDE-AAAA-NNNNNN</code> — ejemplo <code>GR-LIM-2026-000123</code>. Un código por línea.</p>
+
+{% for e in errores %}<div class="alerta alerta-error">{{ e }}</div>{% endfor %}
+
+<form method="post" action="{{ url_for('main.validar') }}" class="tarjeta">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label for="codigos">Códigos a validar</label>
+  <textarea id="codigos" name="codigos" rows="6" spellcheck="false" placeholder="GR-LIM-2026-000123">{{ form.texto }}</textarea>
+  <div class="ejemplos">
+    <span>Ejemplos:</span>
+    {% for e in ejemplos %}<button type="button" class="chip" data-ejemplo="{{ e }}">{{ e }}</button>{% endfor %}
+  </div>
+  <div class="fila">
+    <label>Modo
+      <select name="modo">
+        {% for nombre, m in modos.items() %}
+        <option value="{{ nombre }}" {{ 'selected' if form.modo == nombre }}>{{ nombre|capitalize }} — {{ m.descripcion }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" name="autorizar" value="on" {{ 'checked' if form.autorizar }}>
+      Autorizar despacho (registra el correlativo para detectar duplicados)</label>
+  </div>
+  <button type="submit" class="btn">Validar</button>
+</form>
+
+{% if resultados %}
+<h2>Resultados
+  <small>{{ resumen.validos }} válidos · {{ resumen.invalidos }} inválidos de {{ resumen.total }}</small></h2>
+{% for r in resultados %}
+<article class="resultado {{ 'ok' if r.valido else 'mal' }}">
+  <header>
+    <span class="insignia">{{ 'VÁLIDO' if r.valido else 'INVÁLIDO · ' ~ r.fase_error }}</span>
+    <code>{{ r.entrada_original }}</code>
+    <span class="tiempo">{{ r.tiempo_ms }} ms {{ '' if r.cumple_rnf1 else '⚠ supera 1 s' }}</span>
+  </header>
+  {% if not r.valido %}
+  <pre class="caret">{{ r.entrada }}
+{{ r.indicador() }}</pre>
+  {% for e in r.errores %}<p class="motivo"><strong>{{ e.codigo }}</strong> (col. {{ e.posicion }}): {{ e.mensaje }}</p>{% endfor %}
+  {% else %}
+  <p class="motivo">Código con estructura y reglas de negocio correctas.
+    {% if r.autorizado %}<strong>Correlativo registrado.</strong>{% else %}No se registró (modo solo verificación).{% endif %}</p>
+  {% endif %}
+  {% for a in r.advertencias %}<p class="adv">⚠ {{ a }}</p>{% endfor %}
+
+  <details>
+    <summary>Ver análisis (tokens, árbol, código objeto)</summary>
+    {% if r.tokens %}
+    <table>
+      <thead><tr><th>Token</th><th>Lexema</th><th>Col.</th></tr></thead>
+      <tbody>{% for t in r.tokens %}<tr><td>{{ t.tipo.value }}</td><td><code>{{ t.lexema }}</code></td><td>{{ t.posicion }}</td></tr>{% endfor %}</tbody>
+    </table>
+    {% endif %}
+    {% if r.arbol %}<h4>Árbol de derivación</h4><pre>{{ r.arbol.a_texto() }}</pre>{% endif %}
+    {% if r.registro %}<h4>Código objeto (registro + SQL)</h4><pre>{{ r.registro|tojson(indent=2) }}</pre>{% endif %}
+  </details>
+</article>
+{% endfor %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titulo %}Gramática y AFD{% endblock %}
+{% block contenido %}
+<h1>Lenguaje formal de la guía de remisión</h1>
+<div class="tarjeta">
+  <h3>Alfabeto y tokens</h3>
+  <p>Σ = {A–Z, 0–9, “-”}. Tokens: <code>PREFIJO</code> (GR), <code>SEDE</code> (3 letras), <code>ANIO</code> (4 dígitos),
+     <code>CORRELATIVO</code> (6 dígitos), <code>GUION</code>.</p>
+  <p>Expresión regular equivalente: <code>^GR-[A-Z]{3}-[0-9]{4}-[0-9]{6}$</code></p>
+</div>
+<div class="tarjeta">
+  <h3>Gramática libre de contexto (LL(1))</h3>
+  <pre>{% for p in producciones %}{{ p }}
+{% endfor %}</pre>
+</div>
+<div class="tarjeta">
+  <h3>AFD del analizador léxico — tabla de transiciones</h3>
+  <table>
+    <thead><tr><th>Estado</th>{% for c in columnas %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for f in filas_afd %}<tr><td><code>{{ f.estado }}</code></td>{% for c in f.celdas %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table>
+  <p class="sub">q0 = estado inicial · * = estado de aceptación · “—” = transición hacia el estado trampa (error).</p>
+</div>
+<div class="tarjeta">
+  <h3>Reglas semánticas</h3>
+  <ul>
+    <li>La sede debe existir en el catálogo: {% for c, n in sedes.items() %}<code>{{ c }}</code> ({{ n }}){{ ', ' if not loop.last }}{% endfor %}.</li>
+    <li>El año debe estar entre {{ anio_min }} y el año actual.</li>
+    <li>El correlativo no puede ser 000000 ni repetirse para la misma sede y año.</li>
+  </ul>
+</div>
+{% endblock %}

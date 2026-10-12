@@ -1,0 +1,12 @@
+{
+  "sedes": [
+    {"codigo": "LIM", "nombre": "Almacén Central Lima"},
+    {"codigo": "CAL", "nombre": "Callao"},
+    {"codigo": "ATE", "nombre": "Ate"},
+    {"codigo": "SJL", "nombre": "San Juan de Lurigancho"},
+    {"codigo": "SMP", "nombre": "San Martín de Porres"},
+    {"codigo": "VES", "nombre": "Villa El Salvador"},
+    {"codigo": "SUR", "nombre": "Santiago de Surco"},
+    {"codigo": "LMO", "nombre": "La Molina"}
+  ]
+}
